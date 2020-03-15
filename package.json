@@ -16,9 +16,12 @@
     "build": "yarn build:router && yarn build:core",
     "build:core": "yarn workspace @picos/core build",
     "build:router": "yarn workspace @picos/router build",
-    "build:example": "yarn workspace @picos/example build"
+    "build:example": "yarn workspace @picos/example build",
+    "bump-version": "node .scripts/bump-version.js"
   },
   "devDependencies": {
-    "concurrently": "^5.1.0"
+    "@types/semver": "^7.1.0",
+    "concurrently": "^5.1.0",
+    "semver": "^7.1.3"
   }
 }
