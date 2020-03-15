@@ -24,7 +24,7 @@ for (let { dir, name } of pkgs) {
 // Then publish for real
 for (let { dir, name } of pkgs) {
 	console.log('Publishing %s', name);
-	console.log(exec('npm publish', dir));
+	console.log(exec('npm publish --access public', dir));
 }
 
 console.log('All packages published');
