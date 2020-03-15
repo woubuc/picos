@@ -1,6 +1,6 @@
 {
   "name": "@picos/example",
-  "version": "0.0.3",
+  "version": "0.0.1",
   "private": true,
   "license": "MIT",
   "scripts": {
