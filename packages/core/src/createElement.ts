@@ -1,6 +1,7 @@
 import { Component } from './Component';
-import { Observable } from './observables/Observable';
-import { subscribeIfObservable } from './observables/utils';
+import { Binding, Observable } from './Observable';
+import { subscribeIfObservable } from './utils';
+import { BINDING_MARKER, EMPTY_MARKER } from './markers';
 
 type Constructor<T> = new () => T;
 
@@ -9,8 +10,6 @@ interface RenderState {
 	parent ?: RenderState;
 	slot ?: DocumentFragment;
 }
-
-const EMPTY = Symbol('empty_value');
 
 let renderState : RenderState | undefined = undefined;
 
@@ -25,21 +24,23 @@ export function createElement(tag : string | Constructor<Component>, args : Reco
 			}
 
 			renderState.slot = document.createDocumentFragment();
-			return EMPTY;
+			return EMPTY_MARKER;
 		}
 
-		console.log('create element <%s>', tag);
+		console.log('<%s>', tag);
+
 		let element = document.createElement(tag);
 
 		if (args !== null) {
-			console.log('  args:', args);
 			attachArgs(element, args);
 		}
+
 		attachChildren(element, children);
 		return element;
 	}
 
 	let component = new tag();
+	Reflect.set(component, 'props', args === null ? {} : args);
 	console.group(component.constructor.name);
 
 	renderState = {
@@ -48,25 +49,22 @@ export function createElement(tag : string | Constructor<Component>, args : Reco
 		slot: undefined,
 	};
 
+	console.group('.render()');
 	let rendered = component.render();
+	console.groupEnd();
 
 	if (renderState.slot !== undefined) {
 		attachChildren(renderState.slot, children);
 	}
 
-	console.groupEnd();
-
 	renderState = renderState.parent;
-
+	console.groupEnd();
 	return rendered;
 }
 
 function attachChildren(element : Node, children : any[]) {
-	console.log('  children for', element);
 	for (let child of children) {
-		console.log('  ->', child);
-
-		if (child === EMPTY) {
+		if (child === EMPTY_MARKER) {
 			continue;
 		}
 
@@ -74,9 +72,26 @@ function attachChildren(element : Node, children : any[]) {
 			attachChildren(element, child);
 		}
 
-		if (child instanceof Component) {
-			console.log('  Component found!', child);
-			continue;
+		if (child[BINDING_MARKER] !== undefined) {
+			let binding = child as Binding;
+			let addedNodes = new Set<Node>();
+
+			binding[BINDING_MARKER](nodes => {
+				for (let node of addedNodes.values()) {
+					element.removeChild(node);
+				}
+				addedNodes.clear();
+
+				if (Array.isArray(nodes)) {
+					for (let node of nodes) {
+						element.appendChild(node);
+						addedNodes.add(node);
+					}
+				} else {
+					element.appendChild(nodes);
+					addedNodes.add(nodes);
+				}
+			});
 		}
 
 		if (child instanceof Observable) {
@@ -86,7 +101,7 @@ function attachChildren(element : Node, children : any[]) {
 			continue;
 		}
 
-		if (child instanceof HTMLElement) {
+		if (child instanceof HTMLElement || child instanceof Node) {
 			element.appendChild(child);
 			continue;
 		}
@@ -98,19 +113,50 @@ function attachChildren(element : Node, children : any[]) {
 			continue;
 		}
 
-		console.log('Unknown child?', child);
+		console.warn('Unknown child', child);
 		return child;
 	}
 }
 
 function attachArgs(element : HTMLElement, args : Record<string, any>) {
+	for (let [key, val] of Object.entries(args)) {
 
-	if (args.id) subscribeIfObservable(args.id, val => element.id = val);
-	if (args.class) subscribeIfObservable(args.class, val => element.className = val);
-	if (args.style) subscribeIfObservable(args.style, val => element.setAttribute('style', val));
+		if (key === 'id') {
+			subscribeIfObservable(val, val => element.id = val);
+			continue;
+		}
 
-	if (args.onclick) {
-		let handler = renderState === undefined ? args.onclick : args.onclick.bind(renderState.component);
-		element.addEventListener('click', handler, false);
+		if (key === 'class') {
+			subscribeIfObservable(val, val => element.className = val);
+			continue;
+		}
+
+		if (key === 'model') {
+			if (val instanceof Observable) {
+				element.addEventListener('input', (evt) => {
+					val.set((evt.target as HTMLInputElement).value);
+				}, false);
+				val.subscribe(val => {
+					let el = element as HTMLInputElement;
+					if (el.value !== val) {
+						el.value = val;
+					}
+				});
+			} else {
+				throw new Error('Model must be observable');
+			}
+		}
+
+
+		if (key.startsWith('on')) {
+			let listener = (renderState !== undefined)
+				? args.onclick.bind(renderState.component)
+				: args.onclick;
+
+			element.addEventListener(key.slice(2), listener, false);
+			continue;
+		}
+
+		subscribeIfObservable(val, val => element.setAttribute(key, val));
 	}
 }

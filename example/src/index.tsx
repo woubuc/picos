@@ -1,5 +1,6 @@
-import picos, { Component, Observable } from '@picos/core';
+import picos from '@picos/core';
 
-import { App } from './components/App';
+import './global.scss';
+import { App } from './App';
 
 picos.mount(<App />, document.body);

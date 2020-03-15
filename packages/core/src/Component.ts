@@ -1,10 +1,8 @@
-export abstract class Component<Props extends Record<string, any> = Record<string, any>> {
+import { DeepReadonly } from 'ts-essentials';
 
-	protected readonly props !: Props;
+export abstract class Component<Props extends Record<string, any> = {}> {
 
-	public constructor(props : Props) {
-		console.log('Component %s with props:', this.constructor.name, props);
-	}
+	protected readonly props !: DeepReadonly<Props>;
 
 	public abstract render() : HTMLElement;
 }
