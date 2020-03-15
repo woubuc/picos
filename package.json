@@ -17,7 +17,8 @@
     "build:core": "yarn workspace @picos/core build",
     "build:router": "yarn workspace @picos/router build",
     "build:example": "yarn workspace @picos/example build",
-    "bump-version": "node .scripts/bump-version.js"
+    "bump-versions": "node .scripts/bump-versions.js",
+    "publish-packages": "node .scripts/publish-packages.js"
   },
   "devDependencies": {
     "@types/semver": "^7.1.0",

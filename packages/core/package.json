@@ -6,6 +6,7 @@
   "license": "GPL-3.0-or-later",
   "scripts": {
     "build": "tsc",
+    "prepublishOnly": "tsc",
     "dev": "tsc --watch --preserveWatchOutput"
   },
   "dependencies": {
@@ -14,5 +15,7 @@
   "devDependencies": {
     "typescript": "^3.8.3"
   },
-  "files": ["dist/**/*"]
+  "files": [
+    "dist/**/*"
+  ]
 }
