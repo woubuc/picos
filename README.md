@@ -1,5 +1,5 @@
 # Picos
-Yet another front-end library. Under development.
+Yet another front-end library. Experimental/under development.
 
 ### Design goals
 
