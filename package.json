@@ -1,0 +1,24 @@
+{
+  "name": "picos",
+  "version": "0.0.0",
+  "private": true,
+  "license": "GPL-3.0-or-later",
+  "workspaces": [
+    "example",
+    "packages/core",
+    "packages/router"
+  ],
+  "scripts": {
+    "dev": "concurrently --raw \"yarn:dev:*\"",
+    "dev:core": "yarn workspace @picos/core dev",
+    "dev:router": "yarn workspace @picos/router dev",
+    "dev:example": "yarn workspace @picos/example dev",
+    "build": "yarn build:router && yarn build:core",
+    "build:core": "yarn workspace @picos/core build",
+    "build:router": "yarn workspace @picos/router build",
+    "build:example": "yarn workspace @picos/example build"
+  },
+  "devDependencies": {
+    "concurrently": "^5.1.0"
+  }
+}

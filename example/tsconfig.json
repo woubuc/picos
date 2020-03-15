@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "esnext",
+    "lib": ["es5", "es6", "dom"],
+
+    "sourceMap": true,
+    "declaration": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+
+    "jsx": "react",
+    "jsxFactory": "picos.createElement",
+
+    "strict": true,
+    "noImplicitAny": false,
+    "noUnusedLocals": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+
+    "forceConsistentCasingInFileNames": true
+  }
+}

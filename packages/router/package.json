@@ -1,0 +1,15 @@
+{
+  "name": "@picos/router",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch --preserveWatchOutput"
+  },
+  "devDependencies": {
+    "typescript": "^3.8.3"
+  },
+  "files": ["dist/**/*"]
+}

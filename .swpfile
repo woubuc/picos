@@ -1,0 +1,14 @@
+# See https://sweep.woubuc.be/
+
+dist
+node_modules
+
+example/.cache
+example/dist
+example/node_modules
+
+packages/core/dist
+packages/core/node_modules
+
+packages/router/dist
+packages/router/node_modules
