@@ -1,6 +1,13 @@
 # Picos
 Yet another front-end library. Experimental/under development.
 
+### To do
+- [ ] Add types for JSX
+- [ ] Write documentation & user guide
+- [ ] Build example application
+- [ ] Develop SPA router
+- [ ] Figure out state management tools
+
 ### Design goals
 
 - Explicit reactivity
@@ -12,5 +19,5 @@ Yet another front-end library. Experimental/under development.
   - Routing
   - State management
 - Usable for both small components & full-page SPAs
-- Modular & treeshakeable
+- Modular
 - Supported out-of-the-box by Parcel & Typescript, no additional tooling needed
