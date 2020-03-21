@@ -1,14 +1,13 @@
-import picos, { Component } from '@picos/core';
-
-import { Feed } from './views/feed/Feed';
+import Picos, { Component } from '@picos/core';
 import { Header } from './components/Header';
+import Feed from './views/Feed';
 
-export class App extends Component {
+export default class App extends Component<{ startAt : number }> {
 
 	render() {
 		return <div class="App">
-			<Header />
-			<Feed />
+			<Header/>
+			<Feed/>
 		</div>;
 	}
 }

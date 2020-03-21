@@ -1,5 +1,17 @@
-import { ElementTree } from './createElement';
+/**
+ * Mounts a component or a tree to the DOM
+ *
+ * @param component -
+ * @param container
+ */
 
-export function mount(component : ElementTree, container : HTMLElement) {
-	container.appendChild(component);
+import { ComponentConstructor } from './Component';
+import { createElement } from './createElement';
+
+export function mount(component : ComponentConstructor<any> | Node, container : Node) {
+	if (component instanceof Node) {
+		container.appendChild(component);
+	} else {
+		container.appendChild(createElement(component, null));
+	}
 }

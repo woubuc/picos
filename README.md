@@ -5,7 +5,7 @@ Yet another front-end library. Experimental/under development.
 
 - Explicit reactivity
 - Typescript-first, class-based components
-- Lightweight & compact (target: <10K lib)
+- Lightweight & compact (target: <10K core lib)
 - Immediate DOM manipulation (no VDOM overhead)
 - Core SPA features:
   - Components

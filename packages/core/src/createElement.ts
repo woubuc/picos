@@ -1,162 +1,99 @@
-import { Component } from './Component';
-import { Binding, Observable } from './Observable';
-import { subscribeIfObservable } from './utils';
-import { BINDING_MARKER, EMPTY_MARKER } from './markers';
+import { COMPONENT_MARKER, OBSERVABLE_MARKER } from './markers';
+import { Observable } from './Observable';
+import { flatten } from './utils';
+import { registeredAttributes } from './attributes';
+import { ComponentConstructor, Component } from './Component';
 
-type Constructor<T> = new () => T;
+let currentComponent : Component | undefined = undefined;
 
-interface RenderState {
-	component : Component;
-	parent ?: RenderState;
-	slot ?: DocumentFragment;
-}
-
-let renderState : RenderState | undefined = undefined;
-
-export type ElementTree = any;
-
-export function createElement(tag : string | Constructor<Component>, args : Record<string, any> | null, ...children : any[]) : ElementTree {
+export function createElement(
+	tag : string | ComponentConstructor,
+	attributes : Record<string, any> | null,
+	...children : any[]
+) : Node {
 
 	if (typeof tag === 'string') {
-		if (tag === 'slot') {
-			if (renderState === undefined) {
-				throw new Error('Cannot put `slot` outside of component');
+
+		let element = document.createElement(tag); //new PicosElement(tag);
+
+		if (attributes !== null) {
+			for (let [key, value] of Object.entries(attributes)) {
+				let attr = registeredAttributes.get(key);
+				if (attr === undefined) {
+					if (key.startsWith('on')) {
+						let listener = value;
+
+						if (currentComponent !== undefined) {
+							listener = listener.bind(currentComponent);
+						}
+
+						element.addEventListener(key.slice(2), listener, false);
+					} else {
+						element.setAttribute(key, value);
+					}
+				} else {
+					attr(element, value);
+				}
 			}
-
-			renderState.slot = document.createDocumentFragment();
-			return EMPTY_MARKER;
 		}
 
-		console.log('<%s>', tag);
-
-		let element = document.createElement(tag);
-
-		if (args !== null) {
-			attachArgs(element, args);
+		for (let child of flatten(children)) {
+			let childElement = toElement(child);
+			element.appendChild(childElement);
 		}
 
-		attachChildren(element, children);
 		return element;
 	}
 
-	let component = new tag();
-	Reflect.set(component, 'props', args === null ? {} : args);
-	console.group(component.constructor.name);
+	if (tag[COMPONENT_MARKER] === true) {
+		let C = tag as ComponentConstructor;
 
-	renderState = {
-		component,
-		parent: renderState,
-		slot: undefined,
-	};
+		currentComponent = new C(attributes || {});
+		let rendered = currentComponent.render();
+		currentComponent = undefined;
 
-	console.group('.render()');
-	let rendered = component.render();
-	console.groupEnd();
-
-	if (renderState.slot !== undefined) {
-		attachChildren(renderState.slot, children);
+		return rendered;
 	}
 
-	renderState = renderState.parent;
-	console.groupEnd();
-	return rendered;
+	throw new TypeError('Invalid element: ' + tag);
 }
 
-function attachChildren(element : Node, children : any[]) {
-	for (let child of children) {
-		if (child === EMPTY_MARKER) {
-			continue;
+/**
+ * Turns a child entry of createElement into an element of its own
+ *
+ * @param source - Value of the child entry
+ */
+function toElement(source : any) : Node {
+
+	if (Array.isArray(source)) {
+		// TODO avoid having to add this extra div
+		let parent = document.createElement('div');
+		parent.setAttribute('data-inserted', 'true');
+		for (let i of source) {
+			parent.appendChild(toElement(i));
 		}
-
-		if (Array.isArray(child)) {
-			attachChildren(element, child);
-		}
-
-		if (child[BINDING_MARKER] !== undefined) {
-			let binding = child as Binding;
-			let addedNodes = new Set<Node>();
-
-			binding[BINDING_MARKER](nodes => {
-				for (let node of addedNodes.values()) {
-					element.removeChild(node);
-				}
-				addedNodes.clear();
-
-				if (Array.isArray(nodes)) {
-					for (let node of nodes) {
-						element.appendChild(node);
-						addedNodes.add(node);
-					}
-				} else {
-					element.appendChild(nodes);
-					addedNodes.add(nodes);
-				}
-			});
-		}
-
-		if (child instanceof Observable) {
-			let node = document.createTextNode(child.get());
-			child.subscribe(val => node.textContent = val.toString(), { immediate: true });
-			element.appendChild(node);
-			continue;
-		}
-
-		if (child instanceof HTMLElement || child instanceof Node) {
-			element.appendChild(child);
-			continue;
-		}
-
-		let t = typeof child;
-		if (t === 'string' || t === 'number') {
-			let textNode = document.createTextNode(child);
-			element.appendChild(textNode);
-			continue;
-		}
-
-		console.warn('Unknown child', child);
-		return child;
+		return parent;
 	}
-}
 
-function attachArgs(element : HTMLElement, args : Record<string, any>) {
-	for (let [key, val] of Object.entries(args)) {
-
-		if (key === 'id') {
-			subscribeIfObservable(val, val => element.id = val);
-			continue;
-		}
-
-		if (key === 'class') {
-			subscribeIfObservable(val, val => element.className = val);
-			continue;
-		}
-
-		if (key === 'model') {
-			if (val instanceof Observable) {
-				element.addEventListener('input', (evt) => {
-					val.set((evt.target as HTMLInputElement).value);
-				}, false);
-				val.subscribe(val => {
-					let el = element as HTMLInputElement;
-					if (el.value !== val) {
-						el.value = val;
-					}
-				});
-			} else {
-				throw new Error('Model must be observable');
-			}
-		}
-
-
-		if (key.startsWith('on')) {
-			let listener = (renderState !== undefined)
-				? args.onclick.bind(renderState.component)
-				: args.onclick;
-
-			element.addEventListener(key.slice(2), listener, false);
-			continue;
-		}
-
-		subscribeIfObservable(val, val => element.setAttribute(key, val));
+	if (source instanceof Node) {
+		return source;
 	}
+
+	if (typeof source === 'string' || typeof source === 'number') {
+		return document.createTextNode(source.toString());
+	}
+
+	if (source[OBSERVABLE_MARKER]) {
+		let observable = source as Observable<any>;
+		let previousNode : Node = toElement(observable.get());
+		observable.subscribe(value => {
+			let newNode = toElement(value);
+			previousNode?.parentNode?.replaceChild(newNode, previousNode);
+			previousNode = newNode;
+		}, { immediate: false });
+		return previousNode;
+	}
+
+	console.error('Invalid child:', source);
+	throw new TypeError(`Invalid child`);
 }

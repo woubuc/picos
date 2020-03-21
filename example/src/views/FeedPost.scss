@@ -1,0 +1,18 @@
+.FeedPost {
+	margin: 20px 0;
+
+	&.read {
+		color: #888;
+	}
+	&.read::before {
+		display: inline-block;
+		content: 'read';
+		float: right;
+		background: #88cc88;
+		color: white;
+		padding: 2px 8px;
+		font-size: 0.6rem;
+		text-transform: uppercase;
+		border-radius: 12px;
+	}
+}

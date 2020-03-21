@@ -8,7 +8,7 @@
     "dev": "parcel index.html"
   },
   "dependencies": {
-    "@picos/core": "0.0.0"
+    "@picos/core": "0.0.2"
   },
   "devDependencies": {
     "node-sass": "^4.13.1",

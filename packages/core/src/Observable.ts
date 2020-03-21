@@ -1,22 +1,18 @@
-import { Primitive } from 'ts-essentials';
-import { BINDING_MARKER } from './markers';
+import { OBSERVABLE_MARKER } from './markers';
 
-export type UpdateHandler<T> = (newValue : T) => void;
+export type OnChangeCallback<T> = (value : T) => void;
 
-export type BindingTransform<T> = (value : T) => Primitive | Node;
-
-export interface ObservableSubscribeOptions {
-	immediate : boolean;
-}
-
-export interface Binding {
-	[BINDING_MARKER] : (cb : (nodes : Node | Node[]) => void) => void;
-}
-
+/**
+ * Minimal observable implementation for Picos
+ */
 export class Observable<T> {
 
-	private onUpdate : UpdateHandler<T>[] = [];
+	public readonly [OBSERVABLE_MARKER] = true;
+
 	private value : T;
+
+	private subscriptions = new Map<number, OnChangeCallback<T>>();
+	private subscriptionIdCounter : number = 0;
 
 	public constructor(initialValue : T) {
 		this.value = initialValue;
@@ -28,48 +24,39 @@ export class Observable<T> {
 
 	public set(value : T) : void {
 		this.value = value;
-		this.triggerUpdate();
+		this.triggerChange();
 	}
 
-	public transform(updater : (currentValue : T) => T) : void {
+	public update(updater : (currentValue : T) => T) : void {
 		this.value = updater(this.value);
-		this.triggerUpdate();
+		this.triggerChange();
 	}
 
-	public subscribe(onUpdate : UpdateHandler<T>, options : Partial<ObservableSubscribeOptions> = {}) : void {
-		this.onUpdate.push(onUpdate);
-
-		let mergedOptions : ObservableSubscribeOptions = Object.assign({
-			immediate: true
-		}, options);
-
-		if (mergedOptions.immediate) {
-			this.triggerUpdate();
+	private triggerChange() {
+		for (let cb of this.subscriptions.values()) {
+			cb(this.value);
 		}
 	}
 
-	public bind(transform : (val : T) => Node | Node[]) : Binding {
-		return {
-			[BINDING_MARKER]: (cb) => {
-				this.subscribe(value => {
-					cb(transform(value));
-				});
-			},
-		};
-	}
+	public subscribe(onChange : OnChangeCallback<T>, options : { immediate ?: boolean } = {}) : number {
+		let id = this.subscriptionIdCounter++;
+		this.subscriptions.set(id, onChange);
 
-	public isSet(empty : () => Node | Node[], set : (val : T) => Node | Node[]) : Binding {
-		return this.bind(value =>
-			value
-				? set(value)
-				: empty()
-		);
-	}
-
-	private triggerUpdate() {
-		for (let updater of this.onUpdate) {
-			updater(this.value);
+		if (options.immediate !== false) {
+			onChange(this.value);
 		}
+
+		return id;
+	}
+
+	public removeSubscription(id : number) {
+		this.subscriptions.delete(id);
+	}
+
+	public map<U>(transform : (value : T) => U) : Observable<U> {
+		let next = new Observable(transform(this.value));
+		this.subscribe(value => next.set(transform(value)), { immediate: false });
+		return next;
 	}
 }
 

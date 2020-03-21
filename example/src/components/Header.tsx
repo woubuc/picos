@@ -1,4 +1,4 @@
-import picos, { Component } from '@picos/core';
+import Picos, { Component } from '@picos/core';
 
 import './Header.scss';
 
