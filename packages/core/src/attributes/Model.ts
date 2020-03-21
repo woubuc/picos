@@ -1,4 +1,4 @@
-import { Observable } from '../Observable';
+import { Observable } from '../observable/Observable';
 import { OBSERVABLE_MARKER } from '../markers';
 
 export function Model(node : HTMLElement, value : Observable<any>) {

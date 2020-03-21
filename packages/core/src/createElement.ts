@@ -1,8 +1,9 @@
 import { COMPONENT_MARKER, OBSERVABLE_MARKER } from './markers';
-import { Observable } from './Observable';
+import { Observable } from './observable/Observable';
 import { flatten } from './utils';
 import { registeredAttributes } from './attributes';
 import { ComponentConstructor, Component } from './Component';
+import { ReadonlyObservable } from './observable/ReadonlyObservable';
 
 let currentComponent : Component | undefined = undefined;
 
@@ -84,7 +85,7 @@ function toElement(source : any) : Node {
 	}
 
 	if (source[OBSERVABLE_MARKER]) {
-		let observable = source as Observable<any>;
+		let observable = source as ReadonlyObservable<any>;
 		let previousNode : Node = toElement(observable.get());
 		observable.subscribe(value => {
 			let newNode = toElement(value);

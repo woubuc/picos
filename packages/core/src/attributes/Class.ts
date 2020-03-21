@@ -1,4 +1,4 @@
-import { Observable } from '../Observable';
+import { Observable } from '../observable/Observable';
 import { BINDING_MARKER, OBSERVABLE_MARKER } from '../markers';
 
 type ClassListResult = { static : string[], observables : Record<string, Observable<any>> };

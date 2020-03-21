@@ -9,5 +9,5 @@ export default {
 }
 
 export { Component } from './Component';
-export { Observable } from './Observable';
-
+export { Observable } from './observable/Observable';
+export { ReadonlyObservable } from './observable/ReadonlyObservable';

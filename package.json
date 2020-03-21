@@ -9,6 +9,7 @@
     "packages/router"
   ],
   "scripts": {
+    "test": "yarn workspace @picos/core test",
     "dev": "concurrently --raw \"yarn:dev:*\"",
     "dev:core": "yarn workspace @picos/core dev",
     "dev:router": "yarn workspace @picos/router dev",
