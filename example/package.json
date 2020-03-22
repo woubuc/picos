@@ -1,6 +1,6 @@
 {
   "name": "@picos/example",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "private": true,
   "license": "MIT",
   "scripts": {
@@ -8,8 +8,8 @@
     "dev": "parcel index.html"
   },
   "dependencies": {
-    "@picos/core": "0.0.2",
-    "@picos/router": "0.0.2"
+    "@picos/core": "0.0.3",
+    "@picos/router": "0.0.3"
   },
   "devDependencies": {
     "file-cli": "^1.2.0",
