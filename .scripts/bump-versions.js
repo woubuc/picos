@@ -27,7 +27,20 @@ let pkgs = rootPkg.workspaces
 
 for (let { path, pkg } of pkgs) {
 	pkg.version = newVersion;
-	fs.writeFileSync(path, JSON.stringify(pkg, null, 2));
+
+	for (let key of Object.keys(pkg.dependencies || {})) {
+		if (key.startsWith('@picos/')) {
+			pkg.dependencies[key] = newVersion;
+		}
+	}
+
+	for (let key of Object.keys(pkg.peerDependencies || {})) {
+		if (key.startsWith('@picos/')) {
+			pkg.peerDependencies[key] = newVersion;
+		}
+	}
+
+	fs.writeFileSync(path, JSON.stringify(pkg, null, 2)+ '\n');
 }
 
 console.log('Updating root package.json');
@@ -35,8 +48,8 @@ rootPkg.version = newVersion;
 fs.writeFileSync(rootPkgPath, JSON.stringify(rootPkg, null, 2));
 
 console.log('Creating git tag');
-exec(`git tag -a "v${ newVersion }" -m "v${ newVersion }"`, path.resolve(__dirname, '..'));
 exec('git add *', path.resolve(__dirname, '..'));
 exec(`git commit -m "v${ newVersion }"`, path.resolve(__dirname, '..'));
+exec(`git tag -a "v${ newVersion }" -m "v${ newVersion }"`, path.resolve(__dirname, '..'));
 
 console.log('All packages increased to v%s', newVersion);
