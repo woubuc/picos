@@ -1,5 +1,5 @@
-import { COMPONENT_MARKER } from './markers';
 import { DeepReadonly } from 'ts-essentials';
+import { COMPONENT_MARKER } from './markers';
 
 export type ComponentConstructor<Props extends Record<string, any> = Record<string, any>> = new (props : Props) => Component<Props>;
 

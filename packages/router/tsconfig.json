@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "es6",
     "module": "commonjs",
     "lib": ["es5", "es6", "dom"],
 
@@ -8,6 +8,9 @@
     "declaration": true,
     "outDir": "./dist",
     "rootDir": "./src",
+
+    "jsx": "react",
+    "jsxFactory": "Picos.createElement",
 
     "strict": true,
     "noImplicitAny": false,

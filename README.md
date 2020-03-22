@@ -4,6 +4,7 @@ Yet another front-end library. Experimental/under development.
 ### To do
 - [ ] Add types for JSX
 - [ ] Write documentation & user guide
+- [ ] Subscription cleanup
 - [ ] Build example application
 - [ ] Develop SPA router
 - [ ] Figure out state management tools

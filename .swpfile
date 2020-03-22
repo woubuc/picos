@@ -3,6 +3,7 @@
 dist
 node_modules
 
+example/.artifacts
 example/.cache
 example/dist
 example/node_modules

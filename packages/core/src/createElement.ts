@@ -1,5 +1,4 @@
 import { COMPONENT_MARKER, OBSERVABLE_MARKER } from './markers';
-import { Observable } from './observable/Observable';
 import { flatten } from './utils';
 import { registeredAttributes } from './attributes';
 import { ComponentConstructor, Component } from './Component';
@@ -85,6 +84,7 @@ function toElement(source : any) : Node {
 	}
 
 	if (source[OBSERVABLE_MARKER]) {
+		// TODO clean up subscriptions when nodes are removed
 		let observable = source as ReadonlyObservable<any>;
 		let previousNode : Node = toElement(observable.get());
 		observable.subscribe(value => {

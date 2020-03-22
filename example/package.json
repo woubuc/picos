@@ -4,15 +4,18 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "build": "parcel build index.html",
+    "build": "fcli remove dist && parcel build index.html && fcli move -o dist/report.html .artifacts/report.html",
     "dev": "parcel index.html"
   },
   "dependencies": {
-    "@picos/core": "0.0.2"
+    "@picos/core": "0.0.2",
+    "@picos/router": "0.0.2"
   },
   "devDependencies": {
+    "file-cli": "^1.2.0",
     "node-sass": "^4.13.1",
     "parcel": "^1.12.4",
+    "parcel-plugin-bundle-visualiser": "^1.2.0",
     "typescript": "^3.8.3"
   }
 }

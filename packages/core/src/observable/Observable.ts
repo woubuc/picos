@@ -1,4 +1,3 @@
-import { OBSERVABLE_MARKER } from '../markers';
 import { ReadonlyObservable } from './ReadonlyObservable';
 
 export type OnChangeCallback<T> = (value : T) => void;
