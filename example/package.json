@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "file-cli": "^1.2.0",
-    "node-sass": "^4.13.1",
+    "node-sass": "^7.0.0",
     "parcel": "^1.12.4",
     "parcel-plugin-bundle-visualiser": "^1.2.0",
     "typescript": "^3.8.3"
